@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login To A-RHE</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('Background.jpg'); /* Replace with your image path */
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .header-box {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .header-text {
+            text-align: center;
+            font-size: 24px;
+            color: #fff;
+        }
+        .container {
+            background: linear-gradient(
+                rgba(255, 255, 255, 0.8), 
+                rgba(255, 255, 255, 0.5)
+            ); /* Gradient transparent background */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px; /* Increased width */
+            backdrop-filter: blur(5px); /* Blur effect */
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+        .toggle-link {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            cursor: pointer;
+            color: #007BFF;
+        }
+        .form-group-inline {
+            display: flex;
+            align-items: center;
+        }
+        .form-group-inline input {
+            width: auto;
+            margin-right: 10px;
+        }
+        .guest-button {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .guest-button:hover {
+            background-color: #218838;
+        }
+        .message {
+            text-align: center;
+            margin-top: 10px;
+            color: red;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-box">
+        <div class="header-text">Login to A-RHE to continue</div>
+    </div>
+    <div class="container">
+        <div id="login-form">
+            <h2>Login</h2>
+            <div class="form-group">
+                <input type="email" id="login-email" placeholder="Email/Username/Member ID" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="login-password" placeholder="Password" required>
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="login()">Login</button>
+            </div>
+            <div class="toggle-link" onclick="toggleForms()">Don't have an account? Sign up</div>
+            <div class="form-group form-group-inline">
+                <input type="checkbox" id="keep-logged-in">
+                <label for="keep-logged-in">Keep me logged in</label>
+            </div>
+        </div>
+        <div id="signup-form" style="display: none;">
+            <h2>Sign Up</h2>
+            <div class="form-group">
+                <input type="email" id="signup-email" placeholder="Email" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="signup-password" placeholder="Password" required>
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="signup()">Sign Up</button>
+            </div>
+            <div class="toggle-link" onclick="toggleForms()">Already have an account? Login</div>
+        </div>
+    </div>
+    <div class="message" id="message"></div>
+    <button class="guest-button" onclick="continueAsGuest()">Continue as a guest</button>
+    <script>
+        function toggleForms() {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const message = document.getElementById('message');
+            message.style.display = 'none';
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+            }
+        }
+
+        function showMessage(text, color = 'red') {
+            const message = document.getElementById('message');
+            message.style.color = color;
+            message.textContent = text;
+            message.style.display = 'block';
+        }
+
+        function login() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const keepLoggedIn = document.getElementById('keep-logged-in').checked;
+
+            const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+
+            const account = accounts.find(acc => acc.email === email && acc.password === password);
+
+            if (account) {
+                showMessage('Login successful', 'green');
+                // Redirect to dashboard or another page
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html'; // Replace with your target URL
+                }, 2000);
+            } else {
+                showMessage('Invalid email or password');
+            }
+        }
+
+        function signup() {
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+
+            const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+
+            if (accounts.find(acc => acc.email === email)) {
+                showMessage('Account with this email already exists.');
+                return;
+            }
+
+            accounts.push({ email, password });
+            localStorage.setItem('accounts', JSON.stringify(accounts));
+
+            showMessage('Sign Up successful. You are now logged in.', 'green');
+            // Automatically log in the user after sign up
+            setTimeout(() => {
+                window.location.href = 'dashboard.html'; // Replace with your target URL
+            }, 1000);
+        }
+
+        function continueAsGuest() {
+            window.location.href = 'GuestDashboard.html'; // Replace with your target URL
+        }
+
+        document.getElementById('login-email').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                login();
+            }
+        });
+
+        document.getElementById('login-password').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                login();
+            }
+        });
+
+        document.getElementById('signup-email').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                signup();
+            }
+        });
+
+        document.getElementById('signup-password').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                signup();
+            }
+        });
+    </script>
+</body>
+</html>
